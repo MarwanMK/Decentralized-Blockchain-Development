@@ -1,0 +1,200 @@
+contract SimpleStorage {
+
+   uint storedData;
+
+   function set(uint x) {
+
+       storedData = x;
+
+   }
+
+   function get() constant returns (uint retVal) {
+
+       return storedData;
+
+   }
+
+}
+ contract SimpleAuction {
+
+
+
+address public beneficiary;
+
+uint public auctionEnd;
+
+
+
+// Current state of the auction.
+
+address public highestBidder;
+
+uint public highestBid;
+
+
+
+
+
+mapping(address => uint) pendingReturns;
+
+
+
+
+
+bool ended;
+
+
+
+
+
+event HighestBidIncreased(address bidder, uint amount);
+
+event AuctionEnded(address winner, uint amount);
+
+
+
+
+
+
+
+
+
+function SimpleAuction(
+
+uint _biddingTime,
+
+address _beneficiary
+
+) public {
+
+beneficiary = _beneficiary;
+
+auctionEnd = now + _biddingTime;
+
+}
+
+
+
+/// Bid on the auction with the value sent
+
+
+
+function bid() public payable {
+
+
+require(now <= auctionEnd);
+
+
+
+// If the bid is not higher, send the
+
+// money back.
+
+require(msg.value > highestBid);
+
+
+
+if (highestBidder != 0) {
+
+
+
+pendingReturns[highestBidder] += highestBid;
+
+}
+
+highestBidder = msg.sender;
+
+highestBid = msg.value;
+
+HighestBidIncreased(msg.sender, msg.value);
+
+}
+
+
+
+
+function withdraw() public returns (bool) {
+
+uint amount = pendingReturns[msg.sender];
+
+if (amount > 0) {
+
+
+pendingReturns[msg.sender] = 0;
+
+
+
+if (!msg.sender.send(amount)) {
+
+
+
+pendingReturns[msg.sender] = amount;
+
+return false;
+
+}
+
+}
+
+return true;
+
+}
+
+
+
+
+
+function auctionEnd() public {
+
+nclude interaction with external
+
+
+
+
+
+
+
+require(now >= auctionEnd); // auction did not yet end
+
+require(!ended); // this function has already been called
+
+
+
+
+
+ended = true;
+
+AuctionEnded(highestBidder, highestBid);
+
+
+
+
+
+beneficiary.transfer(highestBid);
+
+}
+
+}
+if(typeof web3 != 'undefined'){
+console.log("Using web3 detected from external source like Metamask")
+this.web3 = new Web3(web3.currentProvider)
+}else{
+this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
+}
+
+const MyContract = web3.eth.contract([here goes the ABI interface])
+
+this.state.ContractInstance = MyContract.at("0x925d81c01d878899adbb7d38f84ce9d5284fa2e7")
+}
+
+
+
+The above piece of code lets you connect to the contract address and gives you an object through which you can interact with the contract and call a specific function.
+
+yourContractInstance.bet(7, {
+gas: 300000,
+from: web3.eth.accounts[0],
+value: web3.toWei(0.1, 'ether')
+}, (err, result) => {
+// Result is the transaction address of that function
+})
